@@ -220,7 +220,7 @@ User-Agent: Mozila/5.0 (Header)
 
 - 模板引擎可以合并**模板与上下文数据**，产生最终的HTML
 
-  ![image-20230102230926540](C:\Users\83573\AppData\Roaming\Typora\typora-user-images\image-20230102230926540.png)
+  ![image-20230102230926540](https://raw.githubusercontent.com/disturb-yy/study-coding/main/img/202301032233513.png)
 
 ##### 2.1 无逻辑模板引擎
 
@@ -249,7 +249,7 @@ User-Agent: Mozila/5.0 (Header)
 - 模板引擎生成HTML，并将其写入到ResponseWriter
 - ResponseWriter再将它加入到HTTP响应中，返回给客户端
 
-![image-20230102231434844](C:\Users\83573\AppData\Roaming\Typora\typora-user-images\image-20230102231434844.png)
+![image-20230102231434844](https://raw.githubusercontent.com/disturb-yy/study-coding/main/img/202301032233128.png)
 
 #### 3 使用模板引擎
 
@@ -442,3 +442,160 @@ t := template.New("t1.html").FUncs(funcMap)
 - block action可以定义模板，并同时使用它
 - template模板必须可用
 - bolck当模板不存在时会创建它
+
+
+
+### 5 路由
+
+#### 1 `Controller`角色
+
+- `main()`：设置类工作
+- `controller`：
+  - 静态资源
+  - 把不同的请求发送到不同的`controller`进行处理
+  - 路由结构
+
+<img src="https://raw.githubusercontent.com/disturb-yy/study-coding/main/img/202301032234292.png" alt="image-20230103223427645" style="zoom: 67%;" />
+
+
+
+#### 2 路由参数
+
+##### **静态路由：**一个路径对应一个页面
+
+**带参数的路由：**根据路由参数，创建出一族不同的页面（模板相同，数据不同）
+
+
+
+#### 3 第三方路由器
+
+- `gorilla/mux`: 灵活性高、功能强大、性能**相对较差一些**
+- `httprouter`: 注重性能、功能简单
+
+
+
+### 6 JSON
+
+#### 1 JSON格式与Go Struct的对比
+
+<img src="https://raw.githubusercontent.com/disturb-yy/study-coding/main/img/202301032236075.png" alt="image-20230103223632200" style="zoom: 67%;" />
+
+#### 2 `JSON`如何对应`Go struct`
+
+##### 2.1 对象名的映射
+
+​	`JSON`字段名一般是**小写格式**，`Go struct`为了导出，往往使用的是**大写格式**，因此往往使用`Tags`来让`JSON`对应`Go struct`中的对象。
+
+```go
+type Company struct {
+    ID		int	   `json:"id"`
+    Name	string `json:"name"`
+    Country string `json:"country"`
+}
+```
+
+##### 2.2 类型映射
+
+- `Go bool`: `JSON boolean`
+- `Go float64`: `JSON 数值`
+- `Go string`: `JSON strings`
+- `Go nil`: `JSON null`
+
+##### 2.3 对于未知结构的`JSON`
+
+- `map[string]interface{}`可以存储任意对象`JSON`对象
+- `[]interface{}`可以存储任意的`JSON`数组
+
+##### 2.4 读取`JSON`
+
+**①使用解码器**
+
+```go
+// 创建一个解码器，传进去的参数要实现Reader接口
+dec := json.NewDecoder(r.Body)
+// 在解码器上进行解码，把解码好的数据放入query
+dec.Decoder(&query)
+```
+
+**②使用`Unmarshal`**
+
+- 把`json`转化为`go struct`
+
+##### 2.5 写入`JSON`
+
+**①使用编码器**
+
+```go
+// 创建一个编码器，传进去的参数要实现Writer接口
+enc := json.NewEncoder(w)
+// 在编码器上进行编码，把要编码的数据results传入到w
+enc.Encoder(results)
+```
+
+**②使用`Marshal`**
+
+- 把`go struct`转化为`json`格式
+- 可以使用`MarshalIndent`，让生成的`json`文件带**缩进符**
+
+
+
+
+
+### 7 中间件
+
+#### 1 什么是中间件（Middleware）
+
+- 根据请求类型，选择响应的Handler
+- 处理Handler的响应
+- 因此，中间件可以对传入的请求和传出的响应进行操作，增加一些功能
+
+#### 2 中间件的用途
+
+- `Logging`: 日志文件
+- `安全`: 用户认证
+- `请求超时`
+- `响应压缩`: 减小响应的文件体积
+
+#### 3 创建中间件
+
+```go
+type MyMiddleware struct {
+    Next http.Handler  // 实现了Handler接口
+}
+// 要让MyMiddleware也实现Handler接口，就要实现ServeHTTP方法
+func(m MyMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    // 在next handler之前做一些事情
+    m.Next.ServeHTTP(w, r)
+    // 在next handler之后做一些事情
+}
+```
+
+
+
+
+
+### 8 请求上下文（Request Conntext）
+
+#### 1 方法
+
+- `func(*Request) Context() context.Context`
+  - 返回当前请求的上下文
+- `func(*Request) WithContext(ctx context.Context) context.Context`
+  - 基于`Context`进行“修改”，（实际上）是创建一个新的`Context`
+
+#### 2 接口定义
+
+```go
+type Context interface {
+	Deadline() (deadline time.Time, ok bool)  // 什么时候失效
+	Done() <-chan struct{}  // 截至时关闭channel
+	Err() error  // 取消原因
+	Value(key any) any  
+}
+// 这些方法都是只读的，不用进行设置
+```
+
+- `WihtCancel()`：它有一个`CancelFunc`
+- `WithDeadline()`: 带有一个时间戳（time.Time)
+- `WithTimeout()`: 带有一个具体的时间段(time.Duration)
+- `WithValue()`: 在里面可以添加一些值
