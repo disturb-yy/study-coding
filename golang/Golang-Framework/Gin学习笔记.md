@@ -73,5 +73,47 @@ go的模板就是一堆定义好的文本内容（一般是HTML文件格式）�
 
 
 
-## GIn 框架
+## Gin 框架
+
+
+
+#### Gin 框架模板渲染
+
+
+
+
+
+#### Gin 返回`json`数据
+
+##### 1 使用`map`
+
+可以使用`map[string]any`类型来返回一个map，从而实现`json`数据的返回
+
+```go
+// gin.H 是gin框架提前定义好的 map[string]any 类型的数据
+data := gin.H{
+	"name":    "小王子",
+	"message": "Hello world!",
+	"age":     18,
+}
+r.GET("/json", data)
+```
+
+##### 2 使用结构体
+
+
+
+
+
+
+
+#### GIn 获取 query string 参数
+
+在URL的`?`后面的是query string 参数，其使用`key-value`的格式，并使用`&`连接多个`key-value`
+
+```go
+name := c.Query("query")
+name := c.DefaultQuery("query", "哈哈")
+name, ok := c.GetQuery("query")
+```
 
