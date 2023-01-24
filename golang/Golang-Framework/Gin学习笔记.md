@@ -77,6 +77,97 @@ go的模板就是一堆定义好的文本内容（一般是HTML文件格式）�
 
 
 
+官方文档：[Gin Web Framework ](https://gin-gonic.com/zh-cn/docs/)
+
+
+
+### 快速入门
+
+要安装 Gin 软件包，需要先安装 Go 并设置 Go 工作区。
+
+1.下载并安装 gin：
+
+```sh
+$ go get -u github.com/gin-gonic/gin
+```
+
+2.将 gin 引入到代码中：
+
+```go
+import "github.com/gin-gonic/gin"
+```
+
+3.实例
+
+```go
+// main.go
+package main
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+func main() {
+	r := gin.Default()
+	r.GET("/index", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "message",
+		})
+	})
+	r.Run(":9000")  // 监听并在 0.0.0.0:9000 上启动服务
+}
+```
+
+-------------------------
+
+
+
+### API
+
+
+
+#### AsciiJSON
+
+使用 AsciiJSON 生成具有转义的非 ASCII 字符的 ASCII-only JSON。
+
+```go
+func main() {
+	r := gin.Default()
+	r.GET("/index", func(c *gin.Context) {
+		data := map[string]any{
+			"lang": "GO语言",
+			"tag":  "<br>",
+		}
+        // 输出 : {"lang":"GO\u8bed\u8a00","tag":"\u003cbr\u003e"}
+		c.AsciiJSON(http.StatusOK, data)
+	})
+	r.Run(":9000")
+}
+```
+
+![image-20230123000812196](https://raw.githubusercontent.com/disturb-yy/study-coding/main/img/202301230008589.png)
+
+
+
+#### HTML 渲染
+
+使用 LoadHTMLGlob() 或者 LoadHTMLFiles()。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### Gin 框架模板渲染
 
 
