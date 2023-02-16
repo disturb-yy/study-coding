@@ -75,7 +75,32 @@ export PATH=$PATH:$GOROOT/bin
 source ~/.bashrc
 ```
 
+##### Linux下环境配置详细示例
 
+- 编辑`~/.bash_profile`文件：
+
+```bash
+vi ~/.bash_profile
+```
+
+- 追加以下内容：
+
+```bash
+export GOROOT=/usr/local/go
+export PATH=$PATH:$GOROOT/bin
+export GOPATH=$HOME/go
+```
+
+> `goroot`为go安装目录
+> `gopath` go工作区，即编写代码存放的目录
+
+当我们配置完毕后，可以执行 `source ~/.profile` 更新系统环境变量。
+
+- 验证,查看版本
+
+```bash
+go version
+```
 
  检查：
 
